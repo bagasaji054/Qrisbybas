@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin BAS STORE</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; padding: 20px; text-align: center; }
+        .box { background: #1e1e1e; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; border: 1px solid #333; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #fff; color: #fff; border-radius: 5px; box-sizing: border-box; }
+        button { background: #28a745; color: white; border: none; padding: 15px; width: 100%; font-weight: bold; border-radius: 5px; cursor: pointer; }
+        #linkResult { margin-top: 20px; word-break: break-all; font-size: 12px; color: #00ff00; background: #000; padding: 10px; display: none; }
+    </style>
+</head>
+<body>
+    <h2>ADMIN GENERATOR LINK</h2>
+    <div class="box">
+        <label>1. Upload QRIS Dinamis Baru</label>
+        <input type="file" id="qrFile" accept="image/*">
+        
+        <label>2. Masukkan Nominal</label>
+        <input type="number" id="nomInput" placeholder="Contoh: 15000">
+        
+        <button onclick="generateLink()">BUAT LINK PEMBAYARAN</button>
+        
+        <div id="linkResult"></div>
+        <button id="copyBtn" style="display:none; margin-top:10px; background:#007bff;" onclick="copyLink()">SALIN LINK</button>
+    </div>
+
+    <script>
+        function generateLink() {
+            const file = document.getElementById('qrFile').files[0];
+            const nom = document.getElementById('nomInput').value;
+            const res = document.getElementById('linkResult');
+            const btn = document.getElementById('copyBtn');
+
+            if (!file || !nom) return alert("Isi semua data!");
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Mengambil string Base64 dan membuang prefix "data:image/...;base64,"
+                const base64String = e.target.result.split(',')[1];
+                
+                // Ganti URL di bawah dengan link GitHub Pages Anda
+                const baseUrl = window.location.href.replace('admin.html', 'index.html');
+                const finalLink = `${baseUrl}?nom=${nom}&qr=${encodeURIComponent(base64String)}`;
+                
+                res.innerText = finalLink;
+                res.style.display = "block";
+                btn.style.display = "block";
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function copyLink() {
+            const text = document.getElementById('linkResult').innerText;
+            navigator.clipboard.writeText(text);
+            alert("Link berhasil disalin! Silakan kirim ke WA customer.");
+        }
+    </script>
+</body>
+</html>
