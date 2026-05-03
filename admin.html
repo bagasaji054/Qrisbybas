@@ -8,7 +8,7 @@
         .box { background: #1e1e1e; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; border: 1px solid #333; }
         input { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #fff; color: #fff; border-radius: 5px; box-sizing: border-box; }
         button { background: #28a745; color: white; border: none; padding: 15px; width: 100%; font-weight: bold; border-radius: 5px; cursor: pointer; }
-        #linkResult { margin-top: 20px; word-break: break-all; font-size: 12px; color: #00ff00; background: #000; padding: 10px; display: none; }
+        #linkResult { margin-top: 20px; word-break: break-all; font-size: 11px; color: #00ff00; background: #000; padding: 10px; display: none; border: 1px dashed #555; }
     </style>
 </head>
 <body>
@@ -33,15 +33,18 @@
             const res = document.getElementById('linkResult');
             const btn = document.getElementById('copyBtn');
 
-            if (!file || !nom) return alert("Isi semua data!");
+            if (!file || !nom) return alert("Pilih foto QR & isi nominal!");
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                // Mengambil string Base64 dan membuang prefix "data:image/...;base64,"
                 const base64String = e.target.result.split(',')[1];
                 
-                // Ganti URL di bawah dengan link GitHub Pages Anda
-                const baseUrl = window.location.href.replace('admin.html', 'index.html');
+                // --- BAGIAN PENTING ---
+                // Pastikan nama file di bawah ini sama dengan yang di GitHub (template.PNG)
+                const fileName = "template.PNG"; 
+                
+                const currentUrl = window.location.href;
+                const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/')) + "/index.html";
                 const finalLink = `${baseUrl}?nom=${nom}&qr=${encodeURIComponent(base64String)}`;
                 
                 res.innerText = finalLink;
@@ -53,8 +56,13 @@
 
         function copyLink() {
             const text = document.getElementById('linkResult').innerText;
-            navigator.clipboard.writeText(text);
-            alert("Link berhasil disalin! Silakan kirim ke WA customer.");
+            const elem = document.createElement('textarea');
+            document.body.appendChild(elem);
+            elem.value = text;
+            elem.select();
+            document.execCommand('copy');
+            document.body.removeChild(elem);
+            alert("Link disalin! Kirim ke customer.");
         }
     </script>
 </body>
