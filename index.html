@@ -5,9 +5,9 @@
     <title>Pembayaran BAS STORE</title>
     <style>
         body { font-family: sans-serif; background: #000; color: #fff; text-align: center; margin: 0; padding: 10px; overflow-x: hidden; }
-        canvas { max-width: 100%; height: auto; border-radius: 8px; margin-top: 5px; }
-        .timer { background: #ce2029; padding: 12px; margin: 10px auto; border-radius: 5px; font-weight: bold; font-size: 20px; max-width: 400px; }
-        .msg { font-size: 13px; color: #aaa; margin-top: 10px; }
+        canvas { max-width: 100%; height: auto; border-radius: 8px; margin-top: 5px; box-shadow: 0 0 15px rgba(255,255,255,0.1); }
+        .timer { background: #ce2029; padding: 12px; margin: 10px auto; border-radius: 5px; font-weight: bold; font-size: 20px; max-width: 400px; border: 2px solid #fff; }
+        .msg { font-size: 13px; color: #aaa; margin-top: 15px; font-style: italic; }
     </style>
 </head>
 <body>
@@ -15,7 +15,7 @@
     <div id="content">
         <div class="timer" id="timer">Sisa Waktu: 09:00</div>
         <canvas id="mainCanvas"></canvas>
-        <p class="msg">Screenshot halaman ini untuk melakukan pembayaran</p>
+        <p class="msg">Silakan Screenshot halaman ini untuk membayar</p>
     </div>
 
 <script>
@@ -25,33 +25,43 @@
     const nom = params.get('nom');
     const qrBase64 = params.get('qr');
 
+    // MENGGUNAKAN PNG HURUF BESAR SESUAI FILE ANDA
     const imgBg = new Image();
-    imgBg.src = 'template.png'; // Pastikan file template.png ada di GitHub Anda
+    imgBg.src = 'template.PNG'; 
 
     const imgQr = new Image();
 
     function render() {
+        // Atur ukuran canvas sesuai gambar template
         canvas.width = imgBg.width;
         canvas.height = imgBg.height;
+        
+        // Gambar Background
         ctx.drawImage(imgBg, 0, 0);
 
+        // Gambar QRIS dari Link (jika ada)
         if (qrBase64) {
-            ctx.drawImage(imgQr, 53, 175, 560, 560); // Posisi QR di area biru
+            // Posisi QR: silakan sesuaikan angka ini jika letaknya kurang pas
+            ctx.drawImage(imgQr, 53, 175, 560, 560); 
         }
 
+        // Gambar Nominal
         if (nom) {
             const txt = new Intl.NumberFormat('id-ID', {
-                style: 'currency', currency: 'IDR'
+                style: 'currency', currency: 'IDR', minimumFractionDigits: 0
             }).format(nom);
-            ctx.font = "bold 42px Arial";
+            
+            ctx.font = "bold 40px Arial"; // Ukuran font diperkecil sedikit agar pas
             ctx.fillStyle = "white";
             ctx.textAlign = "center";
-            ctx.fillText(txt, 604, 835); // Posisi Nominal di area merah (sudah diturunkan)
+            // Posisi teks nominal (X: tengah, Y: di area merah)
+            ctx.fillText(txt, 604, 835); 
         }
     }
 
     imgBg.onload = () => {
         if (qrBase64) {
+            // Dekode data QR dari link
             imgQr.src = "data:image/png;base64," + decodeURIComponent(qrBase64);
             imgQr.onload = render;
         } else {
@@ -59,7 +69,12 @@
         }
     };
 
-    // Timer 9 Menit
+    // Pastikan jika gambar gagal load (salah nama file), tetap ada info
+    imgBg.onerror = () => {
+        alert("Gagal memuat template. Pastikan file bernama template.PNG ada di GitHub.");
+    };
+
+    // LOGIKA TIMER 9 MENIT
     let timeLeft = 9 * 60;
     const countdown = setInterval(() => {
         let m = Math.floor(timeLeft / 60);
@@ -67,7 +82,7 @@
         document.getElementById('timer').innerHTML = `Sisa Waktu: 0${m}:${s < 10 ? '0'+s : s}`;
         if (timeLeft <= 0) {
             clearInterval(countdown);
-            document.getElementById('content').innerHTML = "<h1 style='margin-top:100px;'>WAKTU HABIS</h1><p>Silakan hubungi admin untuk link baru.</p>";
+            document.getElementById('content').innerHTML = "<h1 style='margin-top:100px; color:#ce2029;'>WAKTU HABIS</h1><p>Silakan minta link pembayaran baru kepada admin.</p>";
         }
         timeLeft--;
     }, 1000);
